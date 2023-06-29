@@ -57,7 +57,7 @@ export class CredentialFlow implements IAgentPlugin {
     const ariesProposeCredentialMessage = {
       "@type": ariesMessageTypesCredential.PROPOSE_CREDENTIAL,
       "@id": msgId,
-      preview: args.credentialPreview,
+      credential_preview: args.credentialPreview,
       formats: [
         {
           attach_id: credId,

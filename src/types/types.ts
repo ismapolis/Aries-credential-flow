@@ -27,13 +27,13 @@ export interface IAriesJsonLDAttachPayload {
   };
 }
 
+interface attribute {
+  name: string;
+  "mime-type"?: string;
+  value: string;
+}
+
 export interface ICredentialPreview {
   "@type": "https://didcomm.org/issue-credential/2.0/credential-preview";
-  attributes: [
-    {
-      name: string;
-      "mime-type": string;
-      value: string;
-    }
-  ];
+  attributes: attribute[];
 }

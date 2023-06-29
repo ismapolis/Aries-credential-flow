@@ -1,5 +1,5 @@
 import { AbstractMessageHandler } from "@veramo/message-handler";
-import { ariesMessageTypesPresentation } from "../types/message-types.js";
+import { ariesMessageTypesPresentation } from "../types/types.js";
 import { createPresentation, saveMessage } from "../utils.js";
 import { v4 } from "uuid";
 export class PresentProofHandler extends AbstractMessageHandler {

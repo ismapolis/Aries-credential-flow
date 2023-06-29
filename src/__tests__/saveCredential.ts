@@ -1,4 +1,4 @@
-import { agent } from "../veramo/setup.js";
+import { agent } from "./veramo/setup.js";
 
 const main = async () => {
   const credential = await agent.createVerifiableCredential({

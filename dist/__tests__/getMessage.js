@@ -1,7 +1,12 @@
-import { agent } from "../veramo/setup.js";
+import { agent } from "./veramo/setup.js";
 const main = async () => {
+    const argv = process.argv.slice(2);
+    if (argv.length == 0) {
+        console.log("Please specify message ID");
+        return;
+    }
     const message = await agent.dataStoreGetMessage({
-        id: "a0e4ed31-5ea8-4c99-b13a-89316d4bfd99",
+        id: argv[0],
     });
     console.log(JSON.stringify(message, null, 2));
 };

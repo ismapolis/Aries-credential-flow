@@ -17,7 +17,7 @@ import {
 
 import { MessageHandler } from "@veramo/message-handler";
 
-import { IssueCredentialHandler } from "../handlers/issue-credential-handler.js";
+import { IssueCredentialHandler } from "../../handlers/issue-credential-handler.js";
 
 // Core identity manager plugin
 import { DIDManager } from "@veramo/did-manager";
@@ -60,15 +60,15 @@ import {
   IDataStore,
   IDataStoreORM,
   Entities,
-} from "../data-store/index.js";
+} from "../../data-store/index.js";
 
 // TypeORM is installed with `@veramo/data-store`
 import { DataSource } from "typeorm";
 
 import { WebSocketProvider } from "@ethersproject/providers";
-import { CredentialFlow } from "../credentialFlow.js";
-import { ICredentialFlow } from "../types/ICredentialFlow.js";
-import { PresentProofHandler } from "../handlers/present-proof-handler.js";
+import { CredentialFlow } from "../../credentialFlow.js";
+import { ICredentialFlow } from "../../types/ICredentialFlow.js";
+import { PresentProofHandler } from "../../handlers/present-proof-handler.js";
 import { CredentialIssuerEIP712 } from "@veramo/credential-eip712";
 
 // Custom context

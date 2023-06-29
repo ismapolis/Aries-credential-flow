@@ -6,7 +6,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "addIdentifier": "node dist/__tests__/addIdentifier.js",
+    "addMessagingSvc": "node dist/__tests__/addMessagingSvc.js",
+    "startMessagingSvc": "node dist/__tests__/startMessagingSvc.js",
+    "prepareDemo": "node dist/__tests__/prepareDemo.js"
   },
   "keywords": [],
   "author": "",

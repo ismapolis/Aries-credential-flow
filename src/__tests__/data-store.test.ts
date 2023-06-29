@@ -1,6 +1,6 @@
 //import { ICredentialSchema } from "../data-store/index.js";
 import { ICredentialSchema } from "../data-store/index.js";
-import { agent } from "../veramo/setup.js";
+import { agent } from "./veramo/setup.js";
 
 const main = async () => {
   const schema: ICredentialSchema = {

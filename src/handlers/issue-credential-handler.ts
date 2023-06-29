@@ -32,7 +32,8 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
     if (messageType == ariesMessageTypesCredential.PROPOSE_CREDENTIAL) {
       console.log("Recieved Message from: " + message.from);
       console.log("Message type: " + messageType);
-      console.log("Propose Credential: " + message.id);
+      console.log("Propose Credential ID: " + message.id);
+      console.log(JSON.stringify(message.data, null, 2));
 
       let attach;
       let credentialType;
@@ -49,8 +50,6 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
         console.log(error);
         return message;
       }
-
-      console.log("Extracted data from message");
 
       // Create verifiable credential without proof for "attach~offer" attribute
       const offerAttachPayload = await createOfferCredential(
@@ -100,7 +99,7 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
     if (messageType == ariesMessageTypesCredential.OFFER_CREDENTIAL) {
       console.log("Recieved Message from: " + message.from);
       console.log("Message type: " + messageType);
-      console.log("Offer Credential: " + message.id);
+      console.log("Offer Credential ID: " + message.id);
       let attach;
       try {
         attach = message.data["offer~attach"][0].data;
@@ -116,7 +115,7 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
     if (messageType == ariesMessageTypesCredential.REQUEST_CREDENTIAL) {
       console.log("Recieved Message from: " + message.from);
       console.log("Message type: " + messageType);
-      console.log("Request Credential: " + message.id);
+      console.log("Request Credential ID: " + message.id);
       let attach;
       let credentialType;
       let subject;
@@ -194,7 +193,7 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
     if (messageType == ariesMessageTypesCredential.ISSUE_CREDENTIAL) {
       console.log("Recieved Message from: " + message.from);
       console.log("Message type: " + messageType);
-      console.log("Issue Credential: " + message.id);
+      console.log("Issue Credential ID: " + message.id);
       let attach;
       try {
         attach = message.data["credentials~attach"][0].data;

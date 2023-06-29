@@ -1,20 +1,88 @@
-import { ariesMessageTypesCredential, ariesMessageTypesPresentation, } from "./types/message-types.js";
+import { ariesMessageTypesCredential, ariesMessageTypesPresentation, } from "./types/types.js";
 import { v4 } from "uuid";
+//import { createOfferCredential } from "./utils.js";
 export class CredentialFlow {
     constructor() {
         this.methods = {
-            sendCredentialRequest: this.sendCredentialRequest.bind(this),
-            sendPresentationRequest: this.sendPresentationRequest.bind(this),
+            sendProposeCredential: this.sendProposeCredential.bind(this),
+            sendOfferCredential: this.sendOfferCredential.bind(this),
+            sendRequestCredential: this.sendRequestCredential.bind(this),
+            sendPresentationRequest: this.sendRequestPresentation.bind(this),
         };
     }
-    async sendCredentialRequest(args, context) {
+    async sendProposeCredential(args, context) {
         const credId = v4();
         const msgId = v4();
         const identifier = await context.agent.didManagerGetByAlias({
             alias: "default",
             provider: "did:ethr:development",
         });
-        const ariesProposeCredentialPayload = {
+        const credentialAttachPayload = {
+            credential: {
+                type: ["VerifiableCredential"],
+                issuer: args.issuer,
+                credentialSubject: {
+                    id: identifier.did,
+                },
+            },
+            options: {
+                proofType: "EcdsaSecp256k1RecoverySignature2020",
+            },
+        };
+        const ariesProposeCredentialMessage = {
+            "@type": ariesMessageTypesCredential.PROPOSE_CREDENTIAL,
+            "@id": msgId,
+            credential_preview: args.credentialPreview,
+            formats: [
+                {
+                    attach_id: credId,
+                    format: "aries/ld-proof-vc-detail@v1.0",
+                },
+            ],
+            "filters~attach": [
+                {
+                    "@id": credId,
+                    "mime-type": "application/json",
+                    data: credentialAttachPayload,
+                },
+            ],
+        };
+        // Message envelope
+        const didCommMessage = {
+            type: ariesMessageTypesCredential.PROPOSE_CREDENTIAL,
+            to: args.issuer,
+            from: identifier.did,
+            id: msgId,
+            body: ariesProposeCredentialMessage,
+        };
+        const packedMessage = await context.agent.packDIDCommMessage({
+            packing: "jws",
+            message: didCommMessage,
+        });
+        try {
+            context.agent
+                .sendDIDCommMessage({
+                messageId: msgId,
+                packedMessage,
+                recipientDidUrl: args.issuer,
+            })
+                .then(() => {
+                console.log("Sent Propose Credential: " + msgId);
+            });
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+    async sendOfferCredential() { }
+    async sendRequestCredential(args, context) {
+        const credId = v4();
+        const msgId = v4();
+        const identifier = await context.agent.didManagerGetByAlias({
+            alias: "default",
+            provider: "did:ethr:development",
+        });
+        const ariesRequestCredentialPayload = {
             "@type": ariesMessageTypesCredential.REQUEST_CREDENTIAL,
             "@id": msgId,
             formats: [
@@ -43,33 +111,33 @@ export class CredentialFlow {
             ],
         };
         // Message envelope
-        const proposeMessage = {
+        const didCommMessage = {
             type: ariesMessageTypesCredential.REQUEST_CREDENTIAL,
             to: args.issuer,
             from: identifier.did,
             id: msgId,
-            body: ariesProposeCredentialPayload,
+            body: ariesRequestCredentialPayload,
         };
         const packedMessage = await context.agent.packDIDCommMessage({
             packing: "jws",
-            message: proposeMessage,
+            message: didCommMessage,
         });
         try {
             context.agent
                 .sendDIDCommMessage({
                 messageId: msgId,
                 packedMessage,
-                recipientDidUrl: proposeMessage.to,
+                recipientDidUrl: args.issuer,
             })
                 .then(() => {
-                console.log("Sent Issue Credential: " + msgId);
+                console.log("Sent Request Credential: " + msgId);
             });
         }
         catch (error) {
             console.log(error);
         }
     }
-    async sendPresentationRequest(args, context) {
+    async sendRequestPresentation(args, context) {
         const reqId = v4();
         const msgId = v4();
         const identifier = await context.agent.didManagerGetByAlias({
@@ -97,7 +165,7 @@ export class CredentialFlow {
                         presentation_definition: {
                             input_descriptors: {
                                 schema: {
-                                    id: "UniversityDegreeCredential",
+                                    id: args.credentialType,
                                 },
                             },
                         },
@@ -106,7 +174,7 @@ export class CredentialFlow {
             ],
         };
         // Message envelope
-        const requestMessage = {
+        const didCommMessage = {
             type: ariesMessageTypesPresentation.REQUEST_PRESENTATION,
             to: args.subject,
             from: identifier.did,
@@ -115,14 +183,14 @@ export class CredentialFlow {
         };
         const packedMessage = await context.agent.packDIDCommMessage({
             packing: "jws",
-            message: requestMessage,
+            message: didCommMessage,
         });
         try {
             context.agent
                 .sendDIDCommMessage({
                 messageId: msgId,
                 packedMessage,
-                recipientDidUrl: requestMessage.to,
+                recipientDidUrl: args.subject,
             })
                 .then(() => {
                 console.log("Sent Request Presentation: " + msgId);

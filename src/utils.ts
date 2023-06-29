@@ -18,21 +18,23 @@ import { IDataStore } from "./data-store/index.js";
 export async function checkPreviusCredential(
   subject: string,
   type: string,
-  context: IAgentContext<IDIDManager & IKeyManager & IDataStore & IDIDComm>
+  context: IAgentContext<
+    IDIDManager & IKeyManager & IDataStore & IDIDComm & IDataStoreORM
+  >
 ) {
   console.log("Cheking for previous credentials...");
   try {
-    const credencials =
+    const credentials =
       await context.agent.dataStoreORMGetVerifiableCredentials({
         where: [
           { column: "subject", value: [subject] },
-          { column: "type", value: [type] },
+          { column: "type", value: [`${type[0]},${type[1]}`] },
         ],
       });
-    console.log("Found: " + credencials.length);
-    if (credencials.length > 0) {
-      const id = credencials[-1].verifiableCredential.id;
-      console.log("Adding id from last generated credential:" + id);
+    console.log("Found: " + credentials.length);
+    if (credentials.length > 0) {
+      const id = credentials[credentials.length - 1].verifiableCredential.id;
+      console.log("Adding ID from last generated credential:" + id);
       return id;
     } else {
       return undefined;
@@ -55,80 +57,86 @@ export async function createOfferCredential(
       IDataStoreORM
   >
 ) {
-  // Check whether we have a compatible schema with attributes from credential preview
-  // 1. Get all credentialSchemas
-  const schemas = await context.agent.dataStoreGetAllCredentialSchema();
+  try {
+    // Check whether we have a compatible schema with attributes from credential preview
+    // 1. Get all credentialSchemas
+    const schemas = await context.agent.dataStoreGetAllCredentialSchema();
 
-  // 2. Get attributes from preview
-  const previewAttributes = preview.attributes.map((attribute: any) => {
-    return attribute.name;
-  });
-  console.log(
-    "Attributes from credential~preview: " + previewAttributes.toString()
-  );
-
-  // 3. Get compatibles schemas with preview attributes
-  const compatibleSchemas = schemas.map((schema: any) => {
-    const schemaAttributes = schema.attributes.split(",");
-    if (
-      previewAttributes.every((attr: any) => schemaAttributes.includes(attr))
-    ) {
-      return schema;
-    }
-    return;
-  });
-  console.log(
-    "Compatible credentialSchemas: " + JSON.stringify(compatibleSchemas)
-  );
-
-  if (compatibleSchemas.length == 0) {
-    return undefined;
-  } else {
-    const offerAttachPayload = {
-      formats: new Array(),
-      "offer~attach": new Array(),
-    };
-
-    // 4. Add corresponding "formats" and "offer~attach" entries for every compatible
-    compatibleSchemas.forEach(async (schema: any) => {
-      const attachID = v4();
-
-      // Add "formats" entry
-      const format = {
-        attach_id: attachID,
-        format: "aries/ld-proof-vc-detail@v1.0",
-      };
-      offerAttachPayload.formats.push(format);
-
-      // Add "offer~attach" entry
-      let credential: CredentialPayload = {
-        issuer: attach.credential.issuer,
-        type: ["VerifiableCredential", (schema as ICredentialSchema).type],
-        credentialSubject: {
-          id: attach.credential.credentialSubject.id,
-        },
-      };
-      const attributes = (schema as ICredentialSchema).attributes.split(",");
-      attributes.forEach((attr) => {
-        if (credential.credentialSubject) {
-          credential.credentialSubject[attr.toString()] = attr + "DefaultValue";
-        }
-      });
-
-      const offerAttach = {
-        "@id": attachID,
-        "mime-type": "application/json",
-        data: {
-          credential: credential,
-          options: {
-            proofType: "EcdsaSecp256k1RecoverySignature2020",
-          },
-        },
-      };
-      offerAttachPayload["offer~attach"].push(offerAttach);
+    // 2. Get attributes from preview
+    const previewAttributes = preview.attributes.map((attribute: any) => {
+      return attribute.name;
     });
-    return offerAttachPayload;
+    console.log(
+      "Attributes from credential_preview: " + previewAttributes.toString()
+    );
+
+    // 3. Get compatibles schemas with preview attributes
+    const compatibleSchemas = schemas.map((schema: any) => {
+      const schemaAttributes = schema.attributes.split(",");
+      if (
+        previewAttributes.every((attr: any) => schemaAttributes.includes(attr))
+      ) {
+        return schema;
+      }
+      return;
+    });
+    console.log(
+      "Compatible credentialSchemas: " + JSON.stringify(compatibleSchemas)
+    );
+
+    if (compatibleSchemas.length == 0) {
+      return undefined;
+    } else {
+      const offerAttachPayload = {
+        formats: new Array(),
+        "offer~attach": new Array(),
+      };
+
+      // 4. Add corresponding "formats" and "offer~attach" entries for every compatible
+      compatibleSchemas.forEach(async (schema: any) => {
+        const attachID = v4();
+
+        // Add "formats" entry
+        const format = {
+          attach_id: attachID,
+          format: "aries/ld-proof-vc-detail@v1.0",
+        };
+        offerAttachPayload.formats.push(format);
+
+        // Add "offer~attach" entry
+        let credential: CredentialPayload = {
+          issuer: attach.credential.issuer,
+          type: ["VerifiableCredential", (schema as ICredentialSchema).type],
+          credentialSubject: {
+            id: attach.credential.credentialSubject.id,
+          },
+        };
+        const attributes = (schema as ICredentialSchema).attributes.split(",");
+        attributes.forEach((attr) => {
+          if (credential.credentialSubject) {
+            credential.credentialSubject[attr.toString()] =
+              attr + "DefaultValue";
+          }
+        });
+
+        const offerAttach = {
+          "@id": attachID,
+          "mime-type": "application/json",
+          data: {
+            credential: credential,
+            options: {
+              proofType: "EcdsaSecp256k1RecoverySignature2020",
+            },
+          },
+        };
+        offerAttachPayload["offer~attach"].push(offerAttach);
+      });
+      return offerAttachPayload;
+    }
+  } catch (error) {
+    console.log(error);
   }
+  return;
 }
 
 export async function getConnectedDb(
@@ -230,10 +238,11 @@ export async function createIssueCredential(
 
   try {
     schema = await context.agent.dataStoreORMGetCredentialSchemas({
-      where: [{ column: "type", value: type[1] }],
+      where: [{ column: "type", value: [type[1]] }],
     });
 
     credentialPayload = {
+      id: v4(),
       issuer: credential.issuer,
       type: credential.type,
       credentialSubject: {
