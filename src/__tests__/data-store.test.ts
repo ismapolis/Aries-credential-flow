@@ -5,7 +5,7 @@ import { agent } from "./veramo/setup.js";
 const main = async () => {
   const schema: ICredentialSchema = {
     type: "UniversityDegreeCredential",
-    attributes: "grado, titulo",
+    attributes: "educationalLevel, credentialCategory",
   };
   const addResult = await agent.dataStoreSaveCredentialSchema(schema);
   console.log("Esquema registrado: " + addResult);

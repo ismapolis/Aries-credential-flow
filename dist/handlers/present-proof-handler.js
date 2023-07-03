@@ -12,6 +12,38 @@ export class PresentProofHandler extends AbstractMessageHandler {
             console.log("Recieved Message from: " + message.from);
             console.log("Message type: " + messageType);
             console.log("Propose Presentation: " + message.id);
+            let attach;
+            let subject;
+            try {
+                attach = message.data["proposals~attach"][0].data;
+                subject = message.from;
+            }
+            catch (error) {
+                console.log(error);
+                return message;
+            }
+            const credentialType = attach.input_descriptors.name;
+            let result;
+            try {
+                result = await context.agent.dataStoreORMGetCredentialSchemas({
+                    where: [{ column: "type", value: [credentialType] }],
+                });
+            }
+            catch (error) {
+                console.log(error);
+                return message;
+            }
+            if (result.length == 0) {
+                console.log("Credential type: " + credentialType + " not supported");
+                return message;
+            }
+            else {
+                console.log("Credential type: " + credentialType + " supported");
+            }
+            await context.agent.sendRequestPresentation({
+                credentialType,
+                holder: subject,
+            });
         }
         if (messageType == ariesMessageTypesPresentation.REQUEST_PRESENTATION) {
             console.log("Recieved Message from: " + message.from);
@@ -29,7 +61,7 @@ export class PresentProofHandler extends AbstractMessageHandler {
                 console.log(error);
                 return message;
             }
-            const ariesPresentation = await createPresentation(attach, subject, verifier, context);
+            const ariesPresentation = await createPresentation(attach, verifier, context);
             if (ariesPresentation == undefined) {
                 return message;
             }
@@ -43,8 +75,8 @@ export class PresentProofHandler extends AbstractMessageHandler {
             };
             const offerMessage = {
                 type: ariesMessageTypesPresentation.PRESENTATION,
-                to: subject,
-                from: verifier,
+                to: verifier,
+                from: subject,
                 id: msgId,
                 body: offerCredential,
             };
@@ -57,7 +89,7 @@ export class PresentProofHandler extends AbstractMessageHandler {
                     .sendDIDCommMessage({
                     messageId: msgId,
                     packedMessage,
-                    recipientDidUrl: subject,
+                    recipientDidUrl: verifier,
                 })
                     .then(() => {
                     console.log("Sent Presentation: " + msgId);
@@ -71,11 +103,13 @@ export class PresentProofHandler extends AbstractMessageHandler {
             console.log("Recieved Message from: " + message.from);
             console.log("Message type: " + messageType);
             console.log("Presentation: " + message.id);
-            let attach;
+            var attach;
             try {
                 attach = message.data["presentations~attach"][0].data;
             }
-            catch (error) { }
+            catch (error) {
+                console.log(error);
+            }
             // Get challenge from previous request message
             let requestMessages;
             try {
@@ -92,12 +126,11 @@ export class PresentProofHandler extends AbstractMessageHandler {
                     console.log("Not found previous Request Presentation");
                 }
                 else {
-                    console.log("Found " + requestMessages.length + " Messages");
+                    console.log("Found previous Request Presentation");
                     const messageData = requestMessages[requestMessages.length - 1]
                         .data;
-                    const challenge = messageData["request_presentations~attach"][0].data.options
-                        .challenge;
-                    console.log("Challenge:" + challenge);
+                    const challenge = messageData["presentations~attach"][0].data.options.challenge;
+                    console.log("Challenge: " + challenge);
                     const result = await context.agent.verifyPresentation({
                         presentation: attach,
                         challenge: challenge,
@@ -106,15 +139,11 @@ export class PresentProofHandler extends AbstractMessageHandler {
                     if (!result.verified) {
                         console.log("Verification error: " + result.error);
                     }
-                    else {
-                        const saveResult = await context.agent.dataStoreSaveVerifiablePresentation({
-                            verifiablePresentation: attach,
-                        });
-                        console.log("Saved Verifiable Presentation: " + saveResult);
-                    }
                 }
             }
-            catch (error) { }
+            catch (error) {
+                console.log(error);
+            }
         }
         return super.handle(message, context);
     }

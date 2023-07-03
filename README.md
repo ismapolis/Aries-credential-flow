@@ -39,6 +39,8 @@ export const veramoAgent = createAgent<VeramoAgent>({
 
 ## Usage
 
+In this section, we are going to explain how this plugin works and the differences it may have with the respective specification.
+
 ### IssueCredentialHanlder
 
 This handler supports the four message types defined in the specification.
@@ -61,12 +63,57 @@ The mechanism used in the specification may not be very useful when discussing t
 
 #### Request and Issue
 
-Once Holder has recieved offer message from Issuer, he can retrieved the list of avaible credentials to request. If Holder already knows what type of credentials wants he can start the comunication with a `request-credential` message.
+Once Holder has received offer message from Issuer, he can receive the list of available credentials to request. If Holder already knows what type of credentials wants he can start the communication with a `request-credential` message.
 
 Issuer recieves `request-credential` chekcs whether credential type requested is one he can issue and then creates a verifiable credential.
 
 **_Note:_**
 As this is a prototype, the Issuer uses `default-values` for the different claims. In a production environment, the Issuer would retrieve this information from the database for accurate values.
+
+### PresentProofHanlder
+
+This handler supports the three message types defined in the specification.
+
+- propose-presentation
+- request-presentation
+- presentation
+
+Here we are going to explain how each one works.
+
+#### Propose and Request
+
+#### Presentation
+
+### CredentialFlow Plugin
+
+The CredentialFlow class is the element that allows to send the different message types. You can only send the messages that the especification define as communication starters.
+Holder to Issuer: propose and request, and Issuer to Hoder: offer.
+
+```typescript
+sendProposeCredential(
+    args: {
+      credentialPreview: ICredentialPreview;
+      issuer: string;
+    },
+    context: IAgentContext<IDIDManager & IKeyManager & IResolver>
+  ): Promise<void>;
+
+  sendOfferCredential(
+    args: {
+      credentialType: string;
+      issuer: string;
+    },
+    context: IAgentContext<IDIDManager & IKeyManager & IResolver>
+  ): Promise<void>;
+
+  sendRequestCredential(
+    args: {
+      credentialType: string;
+      issuer: string;
+    },
+    context: IAgentContext<IDIDManager & IKeyManager & IResolver>
+  ): Promise<void>;
+```
 
 ## Demo
 
@@ -78,15 +125,19 @@ In addition,this demo generates and uses `did:ethr` identifiers. The Ethereum DI
 
 ### Prerequisites
 
-In order to send and receive any DIDComm messages, there are some prerequisites that need to be fulfilled:
+In order to send and receive any DIDComm messages, there are some prerequisites that need to be fulfilled. The user must have:
 
 - A decentralized identifier.
 - A DIDComm Messaging endpoint defined in that DID document.
 - A functioning endpoint listening to the specified address.
 
+### Agent setup for communication
+
+In order to meet the needs listed above follow the next steps.
+
 #### 1. Generate did
 
-Veramo allows to register new identifiers with an alias. For this case every new identifier is set to `default` and previous default did alias is change to a random uuid.
+Veramo allows to register new identifiers with an alias. For this case every new identifier is set to `default` and previous default did alias is changed to a random uuid.
 
 ```console
 iillan@iillan-lap:~/code/veramo/credential-flow-plugin$ npm run addIdentifier
@@ -113,7 +164,7 @@ txHash:0xe7f46db78d44f26d599bed12ce7399d9b32353164ca17179b70e8fb786436498
 
 #### 3. Start listening endpoint
 
-Now its time to deploy endpoint and wait for new messages.
+Now it is time to deploy endpoint and wait for new messages.
 
 ```console
 iillan@iillan-lap:~/code/veramo/credential-flow-plugin$ npm run startMessagingSvc
@@ -124,7 +175,7 @@ iillan@iillan-lap:~/code/veramo/credential-flow-plugin$ npm run startMessagingSv
 DIDCommMessaging Service listening on port: 9999
 ```
 
-### Communicatin flow
+### Communication flow
 
 ## Related work
 

@@ -12,7 +12,6 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
             console.log("Recieved Message from: " + message.from);
             console.log("Message type: " + messageType);
             console.log("Propose Credential ID: " + message.id);
-            console.log(JSON.stringify(message.data, null, 2));
             let attach;
             let credentialType;
             let subject;
@@ -37,7 +36,7 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
                 "@id": offerID,
                 comment: "These are the credentials we can offer",
                 formats: offerAttachPayload === null || offerAttachPayload === void 0 ? void 0 : offerAttachPayload.formats,
-                "offer~attach": offerAttachPayload === null || offerAttachPayload === void 0 ? void 0 : offerAttachPayload["offer~attach"],
+                "offer~attach": offerAttachPayload === null || offerAttachPayload === void 0 ? void 0 : offerAttachPayload["offers~attach"],
             };
             const offerMessage = {
                 type: ariesMessageTypesCredential.OFFER_CREDENTIAL,
@@ -146,9 +145,19 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
             console.log("Recieved Message from: " + message.from);
             console.log("Message type: " + messageType);
             console.log("Issue Credential ID: " + message.id);
+            if (message.data.replacement_id) {
+                console.log("Overwriting previous credential: ");
+                const result = await context.agent.dataStoreDeleteVerifiableCredential({
+                    hash: message.data.replacement_id,
+                });
+                console.log(result);
+            }
             let attach;
             try {
                 attach = message.data["credentials~attach"][0].data;
+                await context.agent.dataStoreSaveVerifiableCredential({
+                    verifiableCredential: attach,
+                });
             }
             catch (error) {
                 console.log(error);

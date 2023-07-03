@@ -1,11 +1,5 @@
-import {
-  IAgentContext,
-  IDIDManager,
-  IKeyManager,
-  IPluginMethodMap,
-  IResolver,
-} from "@veramo/core";
-import { ICredentialPreview } from "./types.js";
+import { IPluginMethodMap } from "@veramo/core";
+import { IContext, ICredentialPreview } from "./types.js";
 
 export interface ICredentialFlow extends IPluginMethodMap {
   sendProposeCredential(
@@ -13,15 +7,15 @@ export interface ICredentialFlow extends IPluginMethodMap {
       credentialPreview: ICredentialPreview;
       issuer: string;
     },
-    context: IAgentContext<IDIDManager & IKeyManager & IResolver>
+    context: IContext
   ): Promise<void>;
 
   sendOfferCredential(
     args: {
       credentialType: string;
-      issuer: string;
+      holder: string;
     },
-    context: IAgentContext<IDIDManager & IKeyManager & IResolver>
+    context: IContext
   ): Promise<void>;
 
   sendRequestCredential(
@@ -29,14 +23,22 @@ export interface ICredentialFlow extends IPluginMethodMap {
       credentialType: string;
       issuer: string;
     },
-    context: IAgentContext<IDIDManager & IKeyManager & IResolver>
+    context: IContext
   ): Promise<void>;
 
-  sendPresentationRequest(
+  sendProposePresentation(
     args: {
       credentialType: string;
-      subject: string;
+      verifier: string;
     },
-    context: IAgentContext<IDIDManager & IKeyManager & IResolver>
+    context: IContext
+  ): Promise<void>;
+
+  sendRequestPresentation(
+    args: {
+      credentialType: string;
+      holder: string;
+    },
+    context: IContext
   ): Promise<void>;
 }

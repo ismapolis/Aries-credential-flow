@@ -1,4 +1,12 @@
-import { CredentialPayload } from "@veramo/core";
+import {
+  CredentialPayload,
+  IAgentContext,
+  ICredentialPlugin,
+  IDIDManager,
+  IKeyManager,
+} from "@veramo/core";
+import { IDataStore, IDataStoreORM } from "../data-store/index.js";
+import { IDIDComm } from "@veramo/did-comm";
 
 export enum ariesMessageTypesCredential {
   PROPOSE_CREDENTIAL = "https://didcomm.org/issue-credential/2.0/propose-credential",
@@ -37,3 +45,12 @@ export interface ICredentialPreview {
   "@type": "https://didcomm.org/issue-credential/2.0/credential-preview";
   attributes: attribute[];
 }
+
+export type IContext = IAgentContext<
+  IDIDManager &
+    IKeyManager &
+    IDIDComm &
+    IDataStore &
+    ICredentialPlugin &
+    IDataStoreORM
+>;

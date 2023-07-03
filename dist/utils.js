@@ -10,9 +10,9 @@ export async function checkPreviusCredential(subject, type, context) {
         });
         console.log("Found: " + credentials.length);
         if (credentials.length > 0) {
-            const id = credentials[credentials.length - 1].verifiableCredential.id;
-            console.log("Adding ID from last generated credential:" + id);
-            return id;
+            const hash = credentials[credentials.length - 1].hash;
+            console.log("Adding hash from last generated credential:" + hash);
+            return hash;
         }
         else {
             return undefined;
@@ -48,7 +48,7 @@ export async function createOfferCredential(preview, attach, context) {
         else {
             const offerAttachPayload = {
                 formats: new Array(),
-                "offer~attach": new Array(),
+                "offers~attach": new Array(),
             };
             // 4. Add corresponding "formats" and "offer~attach" entries for every compatible
             compatibleSchemas.forEach(async (schema) => {
@@ -69,7 +69,7 @@ export async function createOfferCredential(preview, attach, context) {
                 };
                 const attributes = schema.attributes.split(",");
                 attributes.forEach((attr) => {
-                    if (credential.credentialSubject) {
+                    if (credential.credentialSubject != undefined) {
                         credential.credentialSubject[attr.toString()] =
                             attr + "DefaultValue";
                     }
@@ -84,7 +84,7 @@ export async function createOfferCredential(preview, attach, context) {
                         },
                     },
                 };
-                offerAttachPayload["offer~attach"].push(offerAttach);
+                offerAttachPayload["offers~attach"].push(offerAttach);
             });
             return offerAttachPayload;
         }
@@ -141,7 +141,6 @@ export async function checkResquestType(type, context) {
 }
 export async function createIssueCredential(credential, context) {
     console.log("Creating verifiable credential.");
-    const type = credential.type;
     const attachID = v4();
     const issueAttachPayload = {
         formats: new Array(),
@@ -152,14 +151,18 @@ export async function createIssueCredential(credential, context) {
         format: "aries/ld-proof-vc@v1.0",
     };
     issueAttachPayload.formats.push(format);
-    let schema;
+    var schemas;
     let credentialPayload;
     let verifiableCredential;
     try {
-        schema = await context.agent.dataStoreORMGetCredentialSchemas({
-            where: [{ column: "type", value: [type[1]] }],
+        schemas = await context.agent.dataStoreORMGetCredentialSchemas({
+            where: [{ column: "type", value: [credential.type[1]] }],
         });
         credentialPayload = {
+            "@context": {
+                grado: "https://schema.org/",
+                titulo: "https://schema.org/",
+            },
             id: v4(),
             issuer: credential.issuer,
             type: credential.type,
@@ -167,10 +170,11 @@ export async function createIssueCredential(credential, context) {
                 id: credential.credentialSubject.id,
             },
         };
-        const attributes = schema[0].attributes.split(",");
+        const attributes = schemas[0].attributes.split(",");
         attributes.forEach((attr) => {
-            if (credential.credentialSubject) {
-                credential.credentialSubject[attr.toString()] = attr + "DefaultValue";
+            if (credentialPayload.credentialSubject != undefined) {
+                credentialPayload.credentialSubject[attr.toString()] =
+                    attr + "DefaultValue";
             }
         });
         verifiableCredential = await context.agent.createVerifiableCredential({
@@ -192,7 +196,7 @@ export async function createIssueCredential(credential, context) {
     issueAttachPayload["credentials~attach"].push(issueAttach);
     return issueAttachPayload;
 }
-export async function createPresentation(attach, subject, verifier, context) {
+export async function createPresentation(attach, verifier, context) {
     // 1. Get credential type requested from Verifier
     const credentialType = attach.presentation_definition.input_descriptors.schema.id;
     // 2. Check wether holder has any compatible credential stored
@@ -205,7 +209,9 @@ export async function createPresentation(attach, subject, verifier, context) {
             ],
         });
         if (credentials.length > 0) {
-            verifiableCredential = credentials[0];
+            verifiableCredential =
+                credentials[credentials.length - 1].verifiableCredential;
+            console.log("Got credential for presentation");
         }
         else {
             throw "Not found credential requested";
@@ -216,28 +222,27 @@ export async function createPresentation(attach, subject, verifier, context) {
         return undefined;
     }
     // 3. Get corresponding verifiable credential and generate presentation payload
-    let ariesPresentationPayload;
-    if (!(verifiableCredential === null || verifiableCredential === void 0 ? void 0 : verifiableCredential.verifiableCredential)) {
-        return undefined;
-    }
-    else {
-        ariesPresentationPayload = {
-            holder: subject,
-            issuanceDate: new Date(),
-            verifiableCredential: [verifiableCredential.verifiableCredential],
-            verifier: [verifier],
-        };
-    }
+    var ariesPresentationPayload;
+    ariesPresentationPayload = {
+        "@context": {
+            verifier: "https://schema.org/",
+        },
+        holder: verifiableCredential.credentialSubject.id,
+        issuanceDate: new Date(),
+        verifiableCredential: [verifiableCredential],
+        verifier: [verifier],
+    };
     // 4. Generate verifiable presentation
-    let presentation;
+    var presentation;
     try {
+        console.log("Generating verifiable presentation");
         presentation = await context.agent.createVerifiablePresentation({
             challenge: attach.options.challenge,
             presentation: ariesPresentationPayload,
-            proofFormat: "EthereumEip712Signature2021",
+            proofFormat: "lds",
         });
         // 5. Format attach attribute
-        const presentationAttachPayload = {
+        var presentationAttachPayload = {
             formats: new Array(),
             "presentations~attach": new Array(),
         };
