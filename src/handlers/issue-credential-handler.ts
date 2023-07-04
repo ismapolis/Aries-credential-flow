@@ -65,7 +65,7 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
         "@id": offerID,
         comment: "These are the credentials we can offer",
         formats: offerAttachPayload?.formats,
-        "offer~attach": offerAttachPayload?.["offers~attach"],
+        "offers~attach": offerAttachPayload?.["offers~attach"],
       };
 
       const offerMessage: IDIDCommMessage = {
@@ -101,13 +101,13 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
       console.log("Offer Credential ID: " + message.id);
       let attach;
       try {
-        attach = message.data["offer~attach"][0].data;
+        attach = message.data["offers~attach"][0].data;
       } catch (error) {
         console.log(error);
         return message;
       }
       console.log(
-        "Credential offer~attach list: " + JSON.stringify(attach, null, 2)
+        "Credential offers~attach list: " + JSON.stringify(attach, null, 2)
       );
     }
 

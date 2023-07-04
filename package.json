@@ -15,7 +15,8 @@
     "sendOfferVC": "node dist/__tests__/sendOfferCred.js",
     "sendRequestVC": "node dist/__tests__/sendRequestCred.js",
     "sendProposeVP": "node dist/__tests__/sendProposeVP.js",
-    "sendRequestVP": "node dist/__tests__/sendRequestVP.js"
+    "sendRequestVP": "node dist/__tests__/sendRequestVP.js",
+    "getMessage": "node dist/__tests__/getMessage.js"
   },
   "keywords": [],
   "author": "",

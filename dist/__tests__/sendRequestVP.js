@@ -7,7 +7,7 @@ const main = async () => {
     }
     const holder = argv[0];
     const type = argv[1];
-    agent.sendRequestPresentation({
+    await agent.sendRequestPresentation({
         credentialType: type,
         holder: holder,
     });

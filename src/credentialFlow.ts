@@ -386,14 +386,11 @@ export class CredentialFlow implements IAgentPlugin {
       body: ariesPresentProofPayload,
     };
 
-    let result;
     try {
       await saveMessage(didCommMessage, context);
     } catch (error) {
       console.log(error);
     }
-    console.log("Saved message: " + result);
-
     const packedMessage = await context.agent.packDIDCommMessage({
       packing: "jws",
       message: didCommMessage,

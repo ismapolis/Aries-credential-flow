@@ -129,7 +129,8 @@ export class PresentProofHandler extends AbstractMessageHandler {
                     console.log("Found previous Request Presentation");
                     const messageData = requestMessages[requestMessages.length - 1]
                         .data;
-                    const challenge = messageData["presentations~attach"][0].data.options.challenge;
+                    const challenge = messageData["request_presentations~attach"][0].data.options
+                        .challenge;
                     console.log("Challenge: " + challenge);
                     const result = await context.agent.verifyPresentation({
                         presentation: attach,

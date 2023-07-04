@@ -1,6 +1,6 @@
 import { ariesMessageTypesCredential, ariesMessageTypesPresentation, } from "./types/types.js";
 import { v4 } from "uuid";
-import { checkPreviusCredential } from "./utils.js";
+import { checkPreviusCredential, saveMessage } from "./utils.js";
 export class CredentialFlow {
     constructor() {
         this.methods = {
@@ -310,23 +310,19 @@ export class CredentialFlow {
             ],
         };
         // Message envelope
-        const didCommMessage = {
+        var didCommMessage = {
             type: ariesMessageTypesPresentation.REQUEST_PRESENTATION,
             to: args.holder,
             from: identifier.did,
             id: msgId,
             body: ariesPresentProofPayload,
         };
-        let result;
         try {
-            result = await context.agent.dataStoreSaveMessage({
-                message: didCommMessage,
-            });
+            await saveMessage(didCommMessage, context);
         }
         catch (error) {
             console.log(error);
         }
-        console.log("Saved message: " + result);
         const packedMessage = await context.agent.packDIDCommMessage({
             packing: "jws",
             message: didCommMessage,
