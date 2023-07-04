@@ -621,7 +621,7 @@ For this scenario we dont need to prepare another pair of terminals for the veri
 Similar to the propose step in the issuance process, the holder does not need to know which schemas the verifier supports in order to initiate the communication. The holder can indicate the credential type he would like to use without prior knowledge of the verifier's supported schemas.
 
 ```
-iillan@iillan-lap:~/code/veramo/credential-flow-plugin$ npm run sendProposeVP did:ethr:development:0x02a7b4984ecb19b7c5a2986735e5d51924a9767323f5d0e37516dd256e87420143 UniversityDegreeCredential
+iillan@iillan-lap:~/holder$ npm run sendProposeVP did:ethr:development:0x02a7b4984ecb19b7c5a2986735e5d51924a9767323f5d0e37516dd256e87420143 UniversityDegreeCredential
 
 > veramo-agent@1.0.0 sendProposeVP
 > node dist/__tests__/sendProposeVP.js "did:ethr:development:0x02a7b4984ecb19b7c5a2986735e5d51924a9767323f5d0e37516dd256e87420143" "UniversityDegreeCredential"
