@@ -41,7 +41,7 @@ export const veramoAgent = createAgent<VeramoAgent>({
 
 In this section, we are going to explain how this plugin works and the differences it may have with the respective specification.
 
-### IssueCredentialHanlder
+### IssueCredentialHandler
 
 This handler supports the four message types defined in the specification.
 
@@ -54,9 +54,9 @@ Here we are going to explain how each one works.
 
 #### Propose and Offer
 
-Holder sends a `propose-credential` message to credential Issuer. The Issuer retrieves the `credential_preview` attribute from received message and checks whether any credential schema with strict compatible claims is registered. The attributes from the credential_preview must be a subset of the attributes from a credential schema.
+Holder sends a `propose-credential` message to credential Issuer. The Issuer retrieves the `credential_preview` attribute from received message and checks whether any credential schema with strict compatible claims is registered. The attributes from the `credential_preview` must be a subset of the attributes from a credential schema.
 
-If there is any compatible schema, Issuer generates corresponding verifiable credentials without proof and send `offer-credential` to Holder.
+If there is any compatible schema, Issuer generates corresponding verifiable credentials without proof and sends `offer-credential` to Holder.
 
 **_Note:_**
 The mechanism used in the specification may not be very useful when discussing the claims a credential should have. In the `offer-credential` message, the specification introduces the attribute `multiple_available`. This attribute is used to communicate to the Holder that there are multiple credentials of the same type available to be issued, but it does not provide information about the specific claim values associated with each credential.
@@ -65,12 +65,12 @@ The mechanism used in the specification may not be very useful when discussing t
 
 Once Holder has received offer message from Issuer, he can receive the list of available credentials to request. If Holder already knows what type of credentials wants he can start the communication with a `request-credential` message.
 
-Issuer recieves `request-credential` chekcs whether credential type requested is one he can issue and then creates the verifiable credential. In this process, the issuer also checks whether he has already issued the same credential type for the specific holder's did. If this is the case, the issuer adds a `replacement_id` attribute to the message. This attribute contains the hash of the previously issued credential, allowing the holder to overwrite it in their wallet.
+Issuer receives `request-credential`, checks whether credential type requested is one he can issue and then creates the verifiable credential. In this process, the issuer also checks whether he has already issued the same credential type for the specific holder's DID. If this is the case, the issuer adds a `replacement_id` attribute to the message. This attribute contains the hash of the previously issued credential, allowing the holder to overwrite it in their wallet.
 
 **_Note:_**
 As this is a prototype, the Issuer uses `default-values` for the different claims. In a production environment, the Issuer would retrieve this information from the database for accurate values.
 
-### PresentProofHanlder
+### PresentProofHandler
 
 This handler supports the three message types defined in the specification.
 
@@ -82,15 +82,15 @@ Here we are going to explain how each one works.
 
 #### Flow
 
-These message types serve as communication starters for this standard. "Propose" is used when a holder wants to initiate the communication flow with a verifier. In this case, the holder does not need to know which schemas the verifier supports, so they can propose a credential type. If the verifier accepts the received credential type, he proceeds to send a `presentation-request` and wait for the holder to generate a verifiable presentation. Once the presentation is received, the verifier checks both the signatures from the holder and the issuer.
+These message types serve as communication starters for this standard. `Propose-presentation` is used when a holder wants to initiate the communication flow with a verifier. In this case, the holder does not need to know which schemas the verifier supports, so they can propose a credential type. If the verifier accepts the received credential type, he proceeds to send a `request-presentation` and wait for the holder to generate a verifiable presentation. Once the presentation is received, the verifier checks both the signatures from the holder and the issuer.
 
 **_Note:_**
-When generating a request, the verifier specefies and saves a challenge for the holder to generate the presentation. Once recieved the presentation, the verifier retrieves last `presentation-request` sent to presentation holder.
+When generating a request, the verifier specifies and saves a challenge for the holder to generate the presentation. Once received the presentation, the verifier retrieves last `request-presentation` sent to presentation holder.
 
 ### CredentialFlow Plugin
 
-The CredentialFlow class is the element that allows to send the different message types. You can only send the messages that the especification define as communication starters.
-Holder to Issuer: propose and request, and Issuer to Hoder: offer.
+The CredentialFlow class is the element that allows to send the different message types. You can only send the messages that the specification define as communication starters.
+Holder to Issuer: propose and request, and Issuer to Holder: offer.
 
 **_Note:_**
 This is CredentialFlow plugin interface.
@@ -139,11 +139,11 @@ sendProposeCredential(
 
 ## Preparation
 
-We have prepared some npm scripts in case a demonstration is needed to showcase how this plugin works and how to initiate communication.
+We have prepared some *npm* scripts in case a demonstration is needed to showcase how this plugin works and how to initiate communication.
 
 The demo is deployed locally and uses Ganache blockchain as verifiable registry. Therefore, it is necesary to start a [Ganache](https://trufflesuite.com/ganache/) node on the localhost. The demo agent connects to [ws://localhost:8545](ws://localhost:8545), which is the default endpoint when a Ganache network is started.
 
-In addition,this demo generates and uses `did:ethr` identifiers. The Ethereum DID method adds an extra part for identifying the network on which the [smart contract](https://github.com/uport-project/ethr-did-registry/blob/develop/contracts/EthereumDIDRegistry.sol) is deployed. In the case of working on localhost, the identifiers will start with: `did:ethr:development:`.
+In addition, this demo generates and uses `did:ethr` identifiers. The Ethereum DID method adds an extra part for identifying the network on which the [smart contract](https://github.com/uport-project/ethr-did-registry/blob/develop/contracts/EthereumDIDRegistry.sol) is deployed. In the case of working on localhost, the identifiers will start with: `did:ethr:development:`.
 
 ### Prerequisites
 
@@ -155,11 +155,11 @@ In order to send and receive any DIDComm messages, there are some prerequisites 
 
 ### Agent setup for communication
 
-In order to meet the needs listed above follow the next steps.
+In order to meet the needs listed above, follow the next steps.
 
-#### 1. Generate did
+#### 1. Generate DID
 
-Veramo allows to register new identifiers with an alias. For this case every new identifier is set to `default` and previous default did alias is changed to a random uuid.
+Veramo allows to register new identifiers with an alias. For this case every new identifier is set to `default` and previous default DID alias is changed to a random uuid.
 
 ```console
 iillan@iillan-lap:~/code/veramo/credential-flow-plugin$ npm run addIdentifier
@@ -170,9 +170,9 @@ iillan@iillan-lap:~/code/veramo/credential-flow-plugin$ npm run addIdentifier
 New identifier created: did:ethr:development:0x03fd13a4619968dbcef148d7c39de98773dfe7439d800eaa7e72dec85327493d68
 ```
 
-#### 2. Add messaging service to did document
+#### 2. Add messaging service to DID document
 
-For this demo endpoints are deployed on local host so user just have to especify desired port.
+For this demo endpoints are deployed on local host so user just have to specify desired port.
 
 ```console
 iillan@iillan-lap:~/code/veramo/credential-flow-plugin$ npm run addMessagingSvc 9999
@@ -319,7 +319,7 @@ Once Holder sends propose message, we should see something like this on Issuer e
 
 ```
 // Issuer terminal
-Recieved Message from: did:ethr:development:0x025862baf2cdb6937f9fef454da3da96fe925764b9b9362507f732d1bd09e9702f
+Received Message from: did:ethr:development:0x025862baf2cdb6937f9fef454da3da96fe925764b9b9362507f732d1bd09e9702f
 Message type: https://didcomm.org/issue-credential/2.0/propose-credential
 Propose Credential ID: bb526ae7-f005-4350-9f8d-045649d008a2
 Proposed credential type: VerifiableCredential
@@ -335,7 +335,7 @@ Holder receives an offer with the possible credentials he can request. In this e
 
 ```
 // Holder terminal
-Recieved Message from: did:ethr:development:0x02a7b4984ecb19b7c5a2986735e5d51924a9767323f5d0e37516dd256e87420143
+Received Message from: did:ethr:development:0x02a7b4984ecb19b7c5a2986735e5d51924a9767323f5d0e37516dd256e87420143
 Message type: https://didcomm.org/issue-credential/2.0/offer-credential
 Offer Credential ID: 9dd200dc-3333-4306-bef6-1559f6c645b7
 Credential offers~attach list: {
@@ -431,7 +431,7 @@ Holder receives an offer with the possible credentials he can request. In this e
 
 ```
 // Issuer terminal
-Recieved Message from: did:ethr:development:0x025862baf2cdb6937f9fef454da3da96fe925764b9b9362507f732d1bd09e9702f
+Received Message from: did:ethr:development:0x025862baf2cdb6937f9fef454da3da96fe925764b9b9362507f732d1bd09e9702f
 Message type: https://didcomm.org/issue-credential/2.0/request-credential
 Request Credential ID: 11f027ca-d0bc-4fb2-bb3a-6c5269cd6949
 Requested credential type: VerifiableCredential,UniversityDegreeCredential
@@ -504,7 +504,7 @@ Once the holder has received the requested verifiable credential, he can retriev
 
 ```
 // Holder terminal
-Recieved Message from: did:ethr:development:0x02a7b4984ecb19b7c5a2986735e5d51924a9767323f5d0e37516dd256e87420143
+Received Message from: did:ethr:development:0x02a7b4984ecb19b7c5a2986735e5d51924a9767323f5d0e37516dd256e87420143
 Message type: https://didcomm.org/issue-credential/2.0/issue-credential
 Issue Credential ID: fb7c1e52-22e0-463b-af42-70d71dc16225
 Verifiable Credential: ...
@@ -614,7 +614,7 @@ Verifiable Credential: ...
 
 ### Credential verification
 
-For this scenario we dont need to prepare another pair of terminals for the verifier. Even thought there is three different roles, each agent support all of them, so we can reutilize the issuer and use it as verifier now.
+For this scenario we don't need to prepare another pair of terminals for the verifier. Even though there are three different roles, each agent supports all of them, so we can reutilize the issuer and use it as verifier now.
 
 #### 1. Propose
 
@@ -631,7 +631,7 @@ Sent Request Presentation: 5bbc054b-db3c-44fc-928a-bb8e86980b7d
 
 ```
 // Verifier terminal
-Recieved Message from: did:ethr:development:0x025862baf2cdb6937f9fef454da3da96fe925764b9b9362507f732d1bd09e9702f
+Received Message from: did:ethr:development:0x025862baf2cdb6937f9fef454da3da96fe925764b9b9362507f732d1bd09e9702f
 Message type: https://didcomm.org/present-proof/2.0/propose-presentation
 Propose Presentation: 5bbc054b-db3c-44fc-928a-bb8e86980b7d
 Credential type: UniversityDegreeCredential supported
@@ -691,7 +691,7 @@ The holder receives the request message and searches his wallet for the requeste
 
 ```
 // Holder terminal
-Recieved Message from: did:ethr:development:0x02a7b4984ecb19b7c5a2986735e5d51924a9767323f5d0e37516dd256e87420143
+Received Message from: did:ethr:development:0x02a7b4984ecb19b7c5a2986735e5d51924a9767323f5d0e37516dd256e87420143
 Message type: https://didcomm.org/present-proof/2.0/request-presentation
 Request Presentation: 4c50d784-c9d9-4151-99ef-a8cc4075d441
 Got credential for presentation
@@ -760,7 +760,7 @@ Finally, the verifier retrieves the presentation from the message and starts the
 
 ```
 // Verifier terminal
-Recieved Message from: did:ethr:development:0x025862baf2cdb6937f9fef454da3da96fe925764b9b9362507f732d1bd09e9702f
+Received Message from: did:ethr:development:0x025862baf2cdb6937f9fef454da3da96fe925764b9b9362507f732d1bd09e9702f
 Message type: https://didcomm.org/present-proof/2.0/presentation
 Presentation: 4a98be03-f5eb-45c1-a60b-e5a05b0ac17a
 Found previous Request Presentation
@@ -927,5 +927,6 @@ Verified Presentation: true
 
 ## Related work
 
-While this work was being developed, Spherity published its [Aries RFCs Veramo Plugin](https://github.com/spherity/aries-rfcs-veramo-plugin).In addition to supporting the issue credential and present proof standards, they also provide support for [Aries RFC 0023: DID Exchange Protocol 1.0](https://github.com/hyperledger/aries-rfcs/blob/40aeda259bdd3b28fe0770e5685a7e2aacebc877/features/0023-did-exchange/README.md#L4).
+While this work was being developed, Spherity published its [Aries RFCs Veramo Plugin](https://github.com/spherity/aries-rfcs-veramo-plugin). In addition to supporting the issue credential and present proof standards, they also provide support for [Aries RFC 0023: DID Exchange Protocol 1.0](https://github.com/hyperledger/aries-rfcs/blob/40aeda259bdd3b28fe0770e5685a7e2aacebc877/features/0023-did-exchange/README.md#L4).
+
 Their work focuses more on managing communication flows and maintaining the machine state for each protocol, but it lacks effort in defining proper message formats. In contrast, our plugin tries to utilize most of the available attributes and employs specific formats for attachments. However, in their implementation, they often leave these attributes as empty strings and occasionally introduce invented attributes.
