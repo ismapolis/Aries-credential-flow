@@ -139,7 +139,7 @@ sendProposeCredential(
 
 ## Preparation
 
-We have prepared some *npm* scripts in case a demonstration is needed to showcase how this plugin works and how to initiate communication.
+We have prepared some _npm_ scripts in case a demonstration is needed to showcase how this plugin works and how to initiate communication.
 
 The demo is deployed locally and uses Ganache blockchain as verifiable registry. Therefore, it is necesary to start a [Ganache](https://trufflesuite.com/ganache/) node on the localhost. The demo agent connects to [ws://localhost:8545](ws://localhost:8545), which is the default endpoint when a Ganache network is started.
 
@@ -427,7 +427,7 @@ Sent Request Credential: 11f027ca-d0bc-4fb2-bb3a-6c5269cd6949
 
 ```
 
-Holder receives an offer with the possible credentials he can request. In this example, he proposed attributes that match the UniversityDegreeCredential schema. What the holder receives are the potential credentials, which are not verifiable because they are sent without the proof attribute.
+When the issuer receives the `request-credential` message, he checks whether he knows the credential type. This seems unnecessary because the issuer has already done it when generating the offer, but remember that may not always be the case; the holder may start the communication flow directly with a request. Additionally, the issuer also looks for previously generated credentials for the holder's DID.
 
 ```
 // Issuer terminal
