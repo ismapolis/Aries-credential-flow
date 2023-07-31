@@ -7,6 +7,8 @@ import {
 import { ICredentialFlow } from "./types/ICredentialFlow.js";
 import { CredentialFlow } from "./credentialFlow.js";
 import * as types from "./types/types.js";
+import { IssueCredentialHandler } from "./handlers/issue-credential-handler.js";
+import { PresentProofHandler } from "./handlers/present-proof-handler.js";
 
 export {
   ICredentialFlow,
@@ -16,4 +18,6 @@ export {
   IDataStoreORM,
   DataStoreORM,
   types,
+  IssueCredentialHandler,
+  PresentProofHandler,
 };
