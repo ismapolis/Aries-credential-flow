@@ -101,5 +101,5 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*"]
+  "include": ["src"]
 }
