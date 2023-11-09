@@ -1,5 +1,8 @@
-import { v4 } from "uuid";
-export async function checkPreviusCredential(subject, type, context) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createPresentation = exports.createIssueCredential = exports.checkResquestType = exports.saveMessage = exports.getConnectedDb = exports.createOfferCredential = exports.checkPreviusCredential = void 0;
+const uuid_1 = require("uuid");
+async function checkPreviusCredential(subject, type, context) {
     console.log("Cheking for previous credentials...");
     try {
         const credentials = await context.agent.dataStoreORMGetVerifiableCredentials({
@@ -23,7 +26,8 @@ export async function checkPreviusCredential(subject, type, context) {
         return;
     }
 }
-export async function createOfferCredential(preview, attach, context) {
+exports.checkPreviusCredential = checkPreviusCredential;
+async function createOfferCredential(preview, attach, context) {
     try {
         // Check whether we have a compatible schema with attributes from credential preview
         // 1. Get all credentialSchemas
@@ -52,7 +56,7 @@ export async function createOfferCredential(preview, attach, context) {
             };
             // 4. Add corresponding "formats" and "offer~attach" entries for every compatible
             compatibleSchemas.forEach(async (schema) => {
-                const attachID = v4();
+                const attachID = (0, uuid_1.v4)();
                 // Add "formats" entry
                 const format = {
                     attach_id: attachID,
@@ -94,7 +98,8 @@ export async function createOfferCredential(preview, attach, context) {
     }
     return;
 }
-export async function getConnectedDb(dbConnection) {
+exports.createOfferCredential = createOfferCredential;
+async function getConnectedDb(dbConnection) {
     if (dbConnection instanceof Promise) {
         return await dbConnection;
     }
@@ -105,7 +110,8 @@ export async function getConnectedDb(dbConnection) {
         return dbConnection;
     }
 }
-export async function saveMessage(message, context) {
+exports.getConnectedDb = getConnectedDb;
+async function saveMessage(message, context) {
     let saveMessagePayload = {
         id: message.id,
         type: message.type,
@@ -118,7 +124,8 @@ export async function saveMessage(message, context) {
     });
     console.log("Saved Message: " + result);
 }
-export async function checkResquestType(type, context) {
+exports.saveMessage = saveMessage;
+async function checkResquestType(type, context) {
     console.log("Looking for credentialSchema: " + type[1]);
     let result;
     try {
@@ -139,9 +146,10 @@ export async function checkResquestType(type, context) {
     }
     return false;
 }
-export async function createIssueCredential(credential, context) {
+exports.checkResquestType = checkResquestType;
+async function createIssueCredential(credential, context) {
     console.log("Creating verifiable credential.");
-    const attachID = v4();
+    const attachID = (0, uuid_1.v4)();
     const issueAttachPayload = {
         formats: new Array(),
         "credentials~attach": new Array(),
@@ -163,7 +171,7 @@ export async function createIssueCredential(credential, context) {
                 grado: "https://schema.org/",
                 titulo: "https://schema.org/",
             },
-            id: v4(),
+            id: (0, uuid_1.v4)(),
             issuer: credential.issuer,
             type: credential.type,
             credentialSubject: {
@@ -196,7 +204,8 @@ export async function createIssueCredential(credential, context) {
     issueAttachPayload["credentials~attach"].push(issueAttach);
     return issueAttachPayload;
 }
-export async function createPresentation(attach, verifier, context) {
+exports.createIssueCredential = createIssueCredential;
+async function createPresentation(attach, verifier, context) {
     // 1. Get credential type requested from Verifier
     const credentialType = attach.presentation_definition.input_descriptors.schema.id;
     // 2. Check wether holder has any compatible credential stored
@@ -246,7 +255,7 @@ export async function createPresentation(attach, verifier, context) {
             formats: new Array(),
             "presentations~attach": new Array(),
         };
-        const attachID = v4();
+        const attachID = (0, uuid_1.v4)();
         const format = {
             attach_id: attachID,
             format: "dif/presentation-exchange/submission@v1.0",
@@ -265,3 +274,4 @@ export async function createPresentation(attach, verifier, context) {
     }
     return undefined;
 }
+exports.createPresentation = createPresentation;

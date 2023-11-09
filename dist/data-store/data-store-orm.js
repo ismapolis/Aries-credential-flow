@@ -1,8 +1,11 @@
-import { DataStoreORM } from "@veramo/data-store";
-import { Any, Between, Brackets, Equal, In, IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, } from "typeorm";
-import { CredentialSchema, createCredentialSchema, } from "./entities/credentialSchema.js";
-import { getConnectedDb } from "../utils.js";
-export class DataStoreORMCustom extends DataStoreORM {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DataStoreORMCustom = void 0;
+const data_store_1 = require("@veramo/data-store");
+const typeorm_1 = require("typeorm");
+const credentialSchema_js_1 = require("./entities/credentialSchema.js");
+const utils_js_1 = require("../utils.js");
+class DataStoreORMCustom extends data_store_1.DataStoreORM {
     constructor(dbConnection) {
         super(dbConnection);
         this.dbConnectionCustom = dbConnection;
@@ -26,13 +29,13 @@ export class DataStoreORMCustom extends DataStoreORM {
     // Methods for Credential Schemas
     async credentialSchemasQuery(args, context) {
         const where = this.createWhereObject(args);
-        let qb = (await getConnectedDb(this.dbConnectionCustom))
-            .getRepository(CredentialSchema)
+        let qb = (await (0, utils_js_1.getConnectedDb)(this.dbConnectionCustom))
+            .getRepository(credentialSchema_js_1.CredentialSchema)
             .createQueryBuilder("credentialSchema")
             .where(where);
         qb = this.decorateQB(qb, "credentialSchema", args);
         if (context.authorizedDID) {
-            qb = qb.andWhere(new Brackets((qb) => {
+            qb = qb.andWhere(new typeorm_1.Brackets((qb) => {
                 qb.where("credential.subject = :ident", {
                     ident: context.authorizedDID,
                 }).orWhere("credential.issuer = :ident", {
@@ -45,7 +48,7 @@ export class DataStoreORMCustom extends DataStoreORM {
     async dataStoreORMGetCredentialSchemas(args, context) {
         const credentialSchemas = await (await this.credentialSchemasQuery(args, context)).getMany();
         return credentialSchemas.map((schema) => {
-            return createCredentialSchema(schema);
+            return (0, credentialSchema_js_1.createCredentialSchema)(schema);
         });
     }
     async dataStoreORMGetCredentialSchemasCount(args, context) {
@@ -54,11 +57,11 @@ export class DataStoreORMCustom extends DataStoreORM {
     // These functions below are from Veramo DataStoreORM, we need them but
     // they are private
     decorateQB(qb, tableName, input) {
-        if (input === null || input === void 0 ? void 0 : input.skip)
+        if (input?.skip)
             qb = qb.skip(input.skip);
-        if (input === null || input === void 0 ? void 0 : input.take)
+        if (input?.take)
             qb = qb.take(input.take);
-        if (input === null || input === void 0 ? void 0 : input.order) {
+        if (input?.order) {
             for (const item of input.order) {
                 qb = qb.orderBy(qb.connection.driver.escape(tableName) +
                     "." +
@@ -68,9 +71,8 @@ export class DataStoreORMCustom extends DataStoreORM {
         return qb;
     }
     createWhereObject(input) {
-        var _a, _b, _c, _d, _e, _f, _g;
         const where = {};
-        if (input === null || input === void 0 ? void 0 : input.where) {
+        if (input?.where) {
             for (const item of input.where) {
                 if (item.column === "verifier") {
                     continue;
@@ -79,57 +81,58 @@ export class DataStoreORMCustom extends DataStoreORM {
                     case "Any":
                         if (!Array.isArray(item.value))
                             throw Error("Operator Any requires value to be an array");
-                        where[item.column] = Any(item.value);
+                        where[item.column] = (0, typeorm_1.Any)(item.value);
                         break;
                     case "Between":
-                        if (((_a = item.value) === null || _a === void 0 ? void 0 : _a.length) != 2)
+                        if (item.value?.length != 2)
                             throw Error("Operation Between requires two values");
-                        where[item.column] = Between(item.value[0], item.value[1]);
+                        where[item.column] = (0, typeorm_1.Between)(item.value[0], item.value[1]);
                         break;
                     case "Equal":
-                        if (((_b = item.value) === null || _b === void 0 ? void 0 : _b.length) != 1)
+                        if (item.value?.length != 1)
                             throw Error("Operation Equal requires one value");
-                        where[item.column] = Equal(item.value[0]);
+                        where[item.column] = (0, typeorm_1.Equal)(item.value[0]);
                         break;
                     case "IsNull":
-                        where[item.column] = IsNull();
+                        where[item.column] = (0, typeorm_1.IsNull)();
                         break;
                     case "LessThan":
-                        if (((_c = item.value) === null || _c === void 0 ? void 0 : _c.length) != 1)
+                        if (item.value?.length != 1)
                             throw Error("Operation LessThan requires one value");
-                        where[item.column] = LessThan(item.value[0]);
+                        where[item.column] = (0, typeorm_1.LessThan)(item.value[0]);
                         break;
                     case "LessThanOrEqual":
-                        if (((_d = item.value) === null || _d === void 0 ? void 0 : _d.length) != 1)
+                        if (item.value?.length != 1)
                             throw Error("Operation LessThanOrEqual requires one value");
-                        where[item.column] = LessThanOrEqual(item.value[0]);
+                        where[item.column] = (0, typeorm_1.LessThanOrEqual)(item.value[0]);
                         break;
                     case "Like":
-                        if (((_e = item.value) === null || _e === void 0 ? void 0 : _e.length) != 1)
+                        if (item.value?.length != 1)
                             throw Error("Operation Like requires one value");
-                        where[item.column] = Like(item.value[0]);
+                        where[item.column] = (0, typeorm_1.Like)(item.value[0]);
                         break;
                     case "MoreThan":
-                        if (((_f = item.value) === null || _f === void 0 ? void 0 : _f.length) != 1)
+                        if (item.value?.length != 1)
                             throw Error("Operation MoreThan requires one value");
-                        where[item.column] = MoreThan(item.value[0]);
+                        where[item.column] = (0, typeorm_1.MoreThan)(item.value[0]);
                         break;
                     case "MoreThanOrEqual":
-                        if (((_g = item.value) === null || _g === void 0 ? void 0 : _g.length) != 1)
+                        if (item.value?.length != 1)
                             throw Error("Operation MoreThanOrEqual requires one value");
-                        where[item.column] = MoreThanOrEqual(item.value[0]);
+                        where[item.column] = (0, typeorm_1.MoreThanOrEqual)(item.value[0]);
                         break;
                     case "In":
                     default:
                         if (!Array.isArray(item.value))
                             throw Error("Operator IN requires value to be an array");
-                        where[item.column] = In(item.value);
+                        where[item.column] = (0, typeorm_1.In)(item.value);
                 }
                 if (item.not === true) {
-                    where[item.column] = Not(where[item.column]);
+                    where[item.column] = (0, typeorm_1.Not)(where[item.column]);
                 }
             }
         }
         return where;
     }
 }
+exports.DataStoreORMCustom = DataStoreORMCustom;

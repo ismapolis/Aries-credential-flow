@@ -1,5 +1,7 @@
-import { v4 } from "uuid";
-import { agent } from "./veramo/setup.js";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const uuid_1 = require("uuid");
+const setup_js_1 = require("./veramo/setup.js");
 async function main() {
     const argv = process.argv.slice(2);
     if (argv.length == 0) {
@@ -7,13 +9,13 @@ async function main() {
         return;
     }
     const port = argv[0];
-    const id = v4();
+    const id = (0, uuid_1.v4)();
     try {
-        const identifier = await agent.didManagerGetByAlias({
+        const identifier = await setup_js_1.agent.didManagerGetByAlias({
             alias: "default",
             provider: "did:ethr:development",
         });
-        const result = await agent.didManagerAddService({
+        const result = await setup_js_1.agent.didManagerAddService({
             did: identifier.did,
             service: {
                 type: "DIDCommMessaging",

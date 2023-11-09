@@ -1,21 +1,23 @@
-import { v4 } from "uuid";
-import { agent } from "./veramo/setup.js";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const uuid_1 = require("uuid");
+const setup_js_1 = require("./veramo/setup.js");
 async function main() {
     try {
-        const defaultIdentifier = await agent.didManagerGetByAlias({
+        const defaultIdentifier = await setup_js_1.agent.didManagerGetByAlias({
             alias: "default",
             provider: "did:ethr:development",
         });
-        await agent.didManagerSetAlias({
+        await setup_js_1.agent.didManagerSetAlias({
             did: defaultIdentifier.did,
-            alias: v4(),
+            alias: (0, uuid_1.v4)(),
         });
     }
     catch (error) {
         console.log("Setting new default");
     }
     try {
-        const newIdentifier = await agent.didManagerCreate({
+        const newIdentifier = await setup_js_1.agent.didManagerCreate({
             kms: "local",
             provider: "did:ethr:development",
             alias: "default",

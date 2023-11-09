@@ -1,7 +1,10 @@
-import { ariesMessageTypesCredential, ariesMessageTypesPresentation, } from "./types/types.js";
-import { v4 } from "uuid";
-import { checkPreviusCredential, saveMessage } from "./utils.js";
-export class CredentialFlow {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CredentialFlow = void 0;
+const types_js_1 = require("./types/types.js");
+const uuid_1 = require("uuid");
+const utils_js_1 = require("./utils.js");
+class CredentialFlow {
     constructor() {
         this.methods = {
             sendProposeCredential: this.sendProposeCredential.bind(this),
@@ -12,8 +15,8 @@ export class CredentialFlow {
         };
     }
     async sendProposeCredential(args, context) {
-        const credId = v4();
-        const msgId = v4();
+        const credId = (0, uuid_1.v4)();
+        const msgId = (0, uuid_1.v4)();
         const identifier = await context.agent.didManagerGetByAlias({
             alias: "default",
             provider: "did:ethr:development",
@@ -31,7 +34,7 @@ export class CredentialFlow {
             },
         };
         const ariesProposeCredentialMessage = {
-            "@type": ariesMessageTypesCredential.PROPOSE_CREDENTIAL,
+            "@type": types_js_1.ariesMessageTypesCredential.PROPOSE_CREDENTIAL,
             "@id": msgId,
             credential_preview: args.credentialPreview,
             formats: [
@@ -50,7 +53,7 @@ export class CredentialFlow {
         };
         // Message envelope
         const didCommMessage = {
-            type: ariesMessageTypesCredential.PROPOSE_CREDENTIAL,
+            type: types_js_1.ariesMessageTypesCredential.PROPOSE_CREDENTIAL,
             to: args.issuer,
             from: identifier.did,
             id: msgId,
@@ -76,8 +79,8 @@ export class CredentialFlow {
         }
     }
     async sendOfferCredential(args, context) {
-        const credId = v4();
-        const msgId = v4();
+        const credId = (0, uuid_1.v4)();
+        const msgId = (0, uuid_1.v4)();
         const identifier = await context.agent.didManagerGetByAlias({
             alias: "default",
             provider: "did:ethr:development",
@@ -112,9 +115,9 @@ export class CredentialFlow {
             },
         };
         const ariesProposeCredentialMessage = {
-            "@type": ariesMessageTypesCredential.PROPOSE_CREDENTIAL,
+            "@type": types_js_1.ariesMessageTypesCredential.PROPOSE_CREDENTIAL,
             "@id": msgId,
-            replacement_id: await checkPreviusCredential(args.holder, args.credentialType, context),
+            replacement_id: await (0, utils_js_1.checkPreviusCredential)(args.holder, args.credentialType, context),
             formats: [
                 {
                     attach_id: credId,
@@ -131,7 +134,7 @@ export class CredentialFlow {
         };
         // Message envelope
         const didCommMessage = {
-            type: ariesMessageTypesCredential.PROPOSE_CREDENTIAL,
+            type: types_js_1.ariesMessageTypesCredential.PROPOSE_CREDENTIAL,
             to: args.holder,
             from: identifier.did,
             id: msgId,
@@ -157,14 +160,14 @@ export class CredentialFlow {
         }
     }
     async sendRequestCredential(args, context) {
-        const credId = v4();
-        const msgId = v4();
+        const credId = (0, uuid_1.v4)();
+        const msgId = (0, uuid_1.v4)();
         const identifier = await context.agent.didManagerGetByAlias({
             alias: "default",
             provider: "did:ethr:development",
         });
         const ariesRequestCredentialPayload = {
-            "@type": ariesMessageTypesCredential.REQUEST_CREDENTIAL,
+            "@type": types_js_1.ariesMessageTypesCredential.REQUEST_CREDENTIAL,
             "@id": msgId,
             formats: [
                 {
@@ -193,7 +196,7 @@ export class CredentialFlow {
         };
         // Message envelope
         const didCommMessage = {
-            type: ariesMessageTypesCredential.REQUEST_CREDENTIAL,
+            type: types_js_1.ariesMessageTypesCredential.REQUEST_CREDENTIAL,
             to: args.issuer,
             from: identifier.did,
             id: msgId,
@@ -219,14 +222,14 @@ export class CredentialFlow {
         }
     }
     async sendProposePresentation(args, context) {
-        const propId = v4();
-        const msgId = v4();
+        const propId = (0, uuid_1.v4)();
+        const msgId = (0, uuid_1.v4)();
         const identifier = await context.agent.didManagerGetByAlias({
             alias: "default",
             provider: "did:ethr:development",
         });
         const ariesProposeProofPayload = {
-            "@type": ariesMessageTypesPresentation.PROPOSE_PRESENTATION,
+            "@type": types_js_1.ariesMessageTypesPresentation.PROPOSE_PRESENTATION,
             "@id": msgId,
             formats: [
                 {
@@ -248,7 +251,7 @@ export class CredentialFlow {
         };
         // Message envelope
         const didCommMessage = {
-            type: ariesMessageTypesPresentation.PROPOSE_PRESENTATION,
+            type: types_js_1.ariesMessageTypesPresentation.PROPOSE_PRESENTATION,
             to: args.verifier,
             from: identifier.did,
             id: msgId,
@@ -274,14 +277,14 @@ export class CredentialFlow {
         }
     }
     async sendRequestPresentation(args, context) {
-        const reqId = v4();
-        const msgId = v4();
+        const reqId = (0, uuid_1.v4)();
+        const msgId = (0, uuid_1.v4)();
         const identifier = await context.agent.didManagerGetByAlias({
             alias: "default",
             provider: "did:ethr:development",
         });
         const ariesPresentProofPayload = {
-            "@type": ariesMessageTypesPresentation.REQUEST_PRESENTATION,
+            "@type": types_js_1.ariesMessageTypesPresentation.REQUEST_PRESENTATION,
             "@id": msgId,
             formats: [
                 {
@@ -311,14 +314,14 @@ export class CredentialFlow {
         };
         // Message envelope
         var didCommMessage = {
-            type: ariesMessageTypesPresentation.REQUEST_PRESENTATION,
+            type: types_js_1.ariesMessageTypesPresentation.REQUEST_PRESENTATION,
             to: args.holder,
             from: identifier.did,
             id: msgId,
             body: ariesPresentProofPayload,
         };
         try {
-            await saveMessage(didCommMessage, context);
+            await (0, utils_js_1.saveMessage)(didCommMessage, context);
         }
         catch (error) {
             console.log(error);
@@ -343,3 +346,4 @@ export class CredentialFlow {
         }
     }
 }
+exports.CredentialFlow = CredentialFlow;

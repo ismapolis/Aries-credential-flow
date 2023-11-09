@@ -1,24 +1,29 @@
-import { v4 } from "uuid";
-import { agent } from "./veramo/setup.js";
-import { RequestWithAgentRouter, MessagingRouter } from "@veramo/remote-server";
-import express from "express";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const uuid_1 = require("uuid");
+const setup_js_1 = require("./veramo/setup.js");
+const remote_server_1 = require("@veramo/remote-server");
+const express_1 = __importDefault(require("express"));
 async function main() {
     // addIdentifier.ts
     try {
-        const defaultIdentifier = await agent.didManagerGetByAlias({
+        const defaultIdentifier = await setup_js_1.agent.didManagerGetByAlias({
             alias: "default",
             provider: "did:ethr:development",
         });
-        await agent.didManagerSetAlias({
+        await setup_js_1.agent.didManagerSetAlias({
             did: defaultIdentifier.did,
-            alias: v4(),
+            alias: (0, uuid_1.v4)(),
         });
     }
     catch (error) {
         console.log("Setting new default");
     }
     try {
-        const newIdentifier = await agent.didManagerCreate({
+        const newIdentifier = await setup_js_1.agent.didManagerCreate({
             kms: "local",
             provider: "did:ethr:development",
             alias: "default",
@@ -35,13 +40,13 @@ async function main() {
         return;
     }
     const port = argv[0];
-    const id = v4();
+    const id = (0, uuid_1.v4)();
     try {
-        const identifier = await agent.didManagerGetByAlias({
+        const identifier = await setup_js_1.agent.didManagerGetByAlias({
             alias: "default",
             provider: "did:ethr:development",
         });
-        const result = await agent.didManagerAddService({
+        const result = await setup_js_1.agent.didManagerAddService({
             did: identifier.did,
             service: {
                 type: "DIDCommMessaging",
@@ -57,7 +62,7 @@ async function main() {
     }
     // startMeessagingSvc.ts
     try {
-        const identifier = await agent.didManagerGetByAlias({
+        const identifier = await setup_js_1.agent.didManagerGetByAlias({
             alias: "default",
             provider: "did:ethr:development",
         });
@@ -65,14 +70,14 @@ async function main() {
         const serviceEndpoint = messagingSvc.serviceEndpoint;
         const messagingPortArray = serviceEndpoint.split(":");
         const messagingPort = messagingPortArray[messagingPortArray.length - 1];
-        const requestWithAgent = RequestWithAgentRouter({ agent });
-        const messagingRouter = MessagingRouter({
+        const requestWithAgent = (0, remote_server_1.RequestWithAgentRouter)({ agent: setup_js_1.agent });
+        const messagingRouter = (0, remote_server_1.MessagingRouter)({
             metaData: {
                 type: "DIDCommMessaging",
                 value: "credential-flow-demo",
             },
         });
-        const app = express();
+        const app = (0, express_1.default)();
         app.use("/", requestWithAgent, messagingRouter);
         app.listen(messagingPort);
         console.log("DIDCommMessaging Service listening on port: " + messagingPort);

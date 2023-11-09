@@ -1,7 +1,10 @@
-import { DataStore } from "@veramo/data-store";
-import { getConnectedDb } from "../utils.js";
-import { CredentialSchema, createCredentialSchema, createCredentialSchemaEntity, } from "./entities/credentialSchema.js";
-export class DataStoreCustom extends DataStore {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DataStoreCustom = void 0;
+const data_store_1 = require("@veramo/data-store");
+const utils_js_1 = require("../utils.js");
+const credentialSchema_js_1 = require("./entities/credentialSchema.js");
+class DataStoreCustom extends data_store_1.DataStore {
     constructor(dbConnection) {
         super(dbConnection);
         this.dbConnectionCustom = dbConnection;
@@ -24,34 +27,35 @@ export class DataStoreCustom extends DataStore {
     async dataStoreSaveCredentialSchema(credentialSchema) {
         let credSchema = credentialSchema;
         credSchema.attributes = credSchema.attributes.replace(/\s+/g, "");
-        const schema = await (await getConnectedDb(this.dbConnectionCustom))
-            .getRepository(CredentialSchema)
-            .save(createCredentialSchemaEntity(credSchema));
+        const schema = await (await (0, utils_js_1.getConnectedDb)(this.dbConnectionCustom))
+            .getRepository(credentialSchema_js_1.CredentialSchema)
+            .save((0, credentialSchema_js_1.createCredentialSchemaEntity)(credSchema));
         return schema.type;
     }
     async dataStoreGetAllCredentialSchema() {
-        const credentialSchemaEntity = await (await getConnectedDb(this.dbConnectionCustom))
-            .getRepository(CredentialSchema)
+        const credentialSchemaEntity = await (await (0, utils_js_1.getConnectedDb)(this.dbConnectionCustom))
+            .getRepository(credentialSchema_js_1.CredentialSchema)
             .createQueryBuilder("credentialSchema")
             .getMany();
         if (!credentialSchemaEntity)
             throw new Error("not_found: CredentialSchema not found");
         return credentialSchemaEntity.map((entity) => {
-            return createCredentialSchema(entity);
+            return (0, credentialSchema_js_1.createCredentialSchema)(entity);
         });
     }
     async dataStoreDeleteCredentialSchema(type) {
-        const credentialSchemaEntity = await (await getConnectedDb(this.dbConnectionCustom))
-            .getRepository(CredentialSchema)
+        const credentialSchemaEntity = await (await (0, utils_js_1.getConnectedDb)(this.dbConnectionCustom))
+            .getRepository(credentialSchema_js_1.CredentialSchema)
             .findOne({
             where: { type: type },
         });
         if (!credentialSchemaEntity) {
             return false;
         }
-        await (await getConnectedDb(this.dbConnectionCustom))
-            .getRepository(CredentialSchema)
+        await (await (0, utils_js_1.getConnectedDb)(this.dbConnectionCustom))
+            .getRepository(credentialSchema_js_1.CredentialSchema)
             .remove(credentialSchemaEntity);
         return true;
     }
 }
+exports.DataStoreCustom = DataStoreCustom;

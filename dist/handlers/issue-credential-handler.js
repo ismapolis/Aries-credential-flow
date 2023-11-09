@@ -1,14 +1,17 @@
-import { AbstractMessageHandler } from "@veramo/message-handler";
-import { ariesMessageTypesCredential } from "../types/types.js";
-import { v4 } from "uuid";
-import { checkPreviusCredential, checkResquestType, createIssueCredential, createOfferCredential, saveMessage, } from "../utils.js";
-export class IssueCredentialHandler extends AbstractMessageHandler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.IssueCredentialHandler = void 0;
+const message_handler_1 = require("@veramo/message-handler");
+const types_js_1 = require("../types/types.js");
+const uuid_1 = require("uuid");
+const utils_js_1 = require("../utils.js");
+class IssueCredentialHandler extends message_handler_1.AbstractMessageHandler {
     constructor() {
         super();
     }
     async handle(message, context) {
         const messageType = message.type;
-        if (messageType == ariesMessageTypesCredential.PROPOSE_CREDENTIAL) {
+        if (messageType == types_js_1.ariesMessageTypesCredential.PROPOSE_CREDENTIAL) {
             console.log("Recieved Message from: " + message.from);
             console.log("Message type: " + messageType);
             console.log("Propose Credential ID: " + message.id);
@@ -28,18 +31,18 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
                 return message;
             }
             // Create verifiable credential without proof for "attach~offer" attribute
-            const offerAttachPayload = await createOfferCredential(message.data["credential_preview"], attach, context);
+            const offerAttachPayload = await (0, utils_js_1.createOfferCredential)(message.data["credential_preview"], attach, context);
             // IDs for message
-            const offerID = v4();
+            const offerID = (0, uuid_1.v4)();
             const offerCredential = {
-                "@type": ariesMessageTypesCredential.OFFER_CREDENTIAL,
+                "@type": types_js_1.ariesMessageTypesCredential.OFFER_CREDENTIAL,
                 "@id": offerID,
                 comment: "These are the credentials we can offer",
-                formats: offerAttachPayload === null || offerAttachPayload === void 0 ? void 0 : offerAttachPayload.formats,
-                "offers~attach": offerAttachPayload === null || offerAttachPayload === void 0 ? void 0 : offerAttachPayload["offers~attach"],
+                formats: offerAttachPayload?.formats,
+                "offers~attach": offerAttachPayload?.["offers~attach"],
             };
             const offerMessage = {
-                type: ariesMessageTypesCredential.OFFER_CREDENTIAL,
+                type: types_js_1.ariesMessageTypesCredential.OFFER_CREDENTIAL,
                 to: subject,
                 from: issuer,
                 id: offerID,
@@ -61,10 +64,10 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
                 });
             }
             finally {
-                await saveMessage(offerMessage, context);
+                await (0, utils_js_1.saveMessage)(offerMessage, context);
             }
         }
-        if (messageType == ariesMessageTypesCredential.OFFER_CREDENTIAL) {
+        if (messageType == types_js_1.ariesMessageTypesCredential.OFFER_CREDENTIAL) {
             console.log("Recieved Message from: " + message.from);
             console.log("Message type: " + messageType);
             console.log("Offer Credential ID: " + message.id);
@@ -78,7 +81,7 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
             }
             console.log("Credential offers~attach list: " + JSON.stringify(attach, null, 2));
         }
-        if (messageType == ariesMessageTypesCredential.REQUEST_CREDENTIAL) {
+        if (messageType == types_js_1.ariesMessageTypesCredential.REQUEST_CREDENTIAL) {
             console.log("Recieved Message from: " + message.from);
             console.log("Message type: " + messageType);
             console.log("Request Credential ID: " + message.id);
@@ -98,17 +101,17 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
                 return message;
             }
             console.log("Extracted data from message");
-            const schemaFound = await checkResquestType(credentialType, context);
+            const schemaFound = await (0, utils_js_1.checkResquestType)(credentialType, context);
             if (!schemaFound) {
                 return message;
             }
             // Check whether the credential proposed was already issued
-            const replacement_id = await checkPreviusCredential(subject, credentialType, context);
-            const issueAttachPayload = await createIssueCredential(attach.credential, context);
+            const replacement_id = await (0, utils_js_1.checkPreviusCredential)(subject, credentialType, context);
+            const issueAttachPayload = await (0, utils_js_1.createIssueCredential)(attach.credential, context);
             // IDs for message
-            const issueID = v4();
+            const issueID = (0, uuid_1.v4)();
             const issueCredential = {
-                "@type": ariesMessageTypesCredential.ISSUE_CREDENTIAL,
+                "@type": types_js_1.ariesMessageTypesCredential.ISSUE_CREDENTIAL,
                 "@id": issueID,
                 comment: "This is the credential you requested",
                 replacement_id: replacement_id,
@@ -116,7 +119,7 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
                 "credentials~attach": issueAttachPayload["credentials~attach"],
             };
             const issueMessage = {
-                type: ariesMessageTypesCredential.ISSUE_CREDENTIAL,
+                type: types_js_1.ariesMessageTypesCredential.ISSUE_CREDENTIAL,
                 to: subject,
                 from: issuer,
                 id: issueID,
@@ -138,10 +141,10 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
                 });
             }
             finally {
-                await saveMessage(issueMessage, context);
+                await (0, utils_js_1.saveMessage)(issueMessage, context);
             }
         }
-        if (messageType == ariesMessageTypesCredential.ISSUE_CREDENTIAL) {
+        if (messageType == types_js_1.ariesMessageTypesCredential.ISSUE_CREDENTIAL) {
             console.log("Recieved Message from: " + message.from);
             console.log("Message type: " + messageType);
             console.log("Issue Credential ID: " + message.id);
@@ -168,3 +171,4 @@ export class IssueCredentialHandler extends AbstractMessageHandler {
         return super.handle(message, context);
     }
 }
+exports.IssueCredentialHandler = IssueCredentialHandler;

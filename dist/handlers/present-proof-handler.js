@@ -1,14 +1,17 @@
-import { AbstractMessageHandler } from "@veramo/message-handler";
-import { ariesMessageTypesPresentation } from "../types/types.js";
-import { createPresentation, saveMessage } from "../utils.js";
-import { v4 } from "uuid";
-export class PresentProofHandler extends AbstractMessageHandler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PresentProofHandler = void 0;
+const message_handler_1 = require("@veramo/message-handler");
+const types_js_1 = require("../types/types.js");
+const utils_js_1 = require("../utils.js");
+const uuid_1 = require("uuid");
+class PresentProofHandler extends message_handler_1.AbstractMessageHandler {
     constructor() {
         super();
     }
     async handle(message, context) {
         const messageType = message.type;
-        if (messageType == ariesMessageTypesPresentation.PROPOSE_PRESENTATION) {
+        if (messageType == types_js_1.ariesMessageTypesPresentation.PROPOSE_PRESENTATION) {
             console.log("Recieved Message from: " + message.from);
             console.log("Message type: " + messageType);
             console.log("Propose Presentation: " + message.id);
@@ -45,7 +48,7 @@ export class PresentProofHandler extends AbstractMessageHandler {
                 holder: subject,
             });
         }
-        if (messageType == ariesMessageTypesPresentation.REQUEST_PRESENTATION) {
+        if (messageType == types_js_1.ariesMessageTypesPresentation.REQUEST_PRESENTATION) {
             console.log("Recieved Message from: " + message.from);
             console.log("Message type: " + messageType);
             console.log("Request Presentation: " + message.id);
@@ -61,20 +64,20 @@ export class PresentProofHandler extends AbstractMessageHandler {
                 console.log(error);
                 return message;
             }
-            const ariesPresentation = await createPresentation(attach, verifier, context);
+            const ariesPresentation = await (0, utils_js_1.createPresentation)(attach, verifier, context);
             if (ariesPresentation == undefined) {
                 return message;
             }
-            const msgId = v4();
+            const msgId = (0, uuid_1.v4)();
             const offerCredential = {
-                "@type": ariesMessageTypesPresentation.PRESENTATION,
+                "@type": types_js_1.ariesMessageTypesPresentation.PRESENTATION,
                 "@id": msgId,
                 comment: "Here you have the presentation requested",
-                formats: ariesPresentation === null || ariesPresentation === void 0 ? void 0 : ariesPresentation.formats,
-                "presentations~attach": ariesPresentation === null || ariesPresentation === void 0 ? void 0 : ariesPresentation["presentations~attach"],
+                formats: ariesPresentation?.formats,
+                "presentations~attach": ariesPresentation?.["presentations~attach"],
             };
             const offerMessage = {
-                type: ariesMessageTypesPresentation.PRESENTATION,
+                type: types_js_1.ariesMessageTypesPresentation.PRESENTATION,
                 to: verifier,
                 from: subject,
                 id: msgId,
@@ -96,10 +99,10 @@ export class PresentProofHandler extends AbstractMessageHandler {
                 });
             }
             finally {
-                await saveMessage(offerMessage, context);
+                await (0, utils_js_1.saveMessage)(offerMessage, context);
             }
         }
-        if (messageType == ariesMessageTypesPresentation.PRESENTATION) {
+        if (messageType == types_js_1.ariesMessageTypesPresentation.PRESENTATION) {
             console.log("Recieved Message from: " + message.from);
             console.log("Message type: " + messageType);
             console.log("Presentation: " + message.id);
@@ -118,7 +121,7 @@ export class PresentProofHandler extends AbstractMessageHandler {
                         { column: "from", value: [message.to] },
                         {
                             column: "type",
-                            value: [ariesMessageTypesPresentation.REQUEST_PRESENTATION],
+                            value: [types_js_1.ariesMessageTypesPresentation.REQUEST_PRESENTATION],
                         },
                     ],
                 });
@@ -149,3 +152,4 @@ export class PresentProofHandler extends AbstractMessageHandler {
         return super.handle(message, context);
     }
 }
+exports.PresentProofHandler = PresentProofHandler;
