@@ -9,6 +9,8 @@ import { CredentialFlow } from "./credentialFlow.js";
 import * as types from "./types/types.js";
 import { IssueCredentialHandler } from "./handlers/issue-credential-handler.js";
 import { PresentProofHandler } from "./handlers/present-proof-handler.js";
+import { migrationsCustom } from "./data-store/migrations/index.js";
+import { entitiesCustom } from "./data-store/entities/index.js";
 
 export {
   ICredentialFlow,
@@ -20,4 +22,6 @@ export {
   types,
   IssueCredentialHandler,
   PresentProofHandler,
+  migrationsCustom,
+  entitiesCustom,
 };
