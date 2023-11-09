@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PresentProofHandler = exports.IssueCredentialHandler = exports.types = exports.DataStoreORM = exports.DataStore = exports.CredentialFlow = void 0;
+exports.entitiesCustom = exports.migrationsCustom = exports.PresentProofHandler = exports.IssueCredentialHandler = exports.types = exports.DataStoreORM = exports.DataStore = exports.CredentialFlow = void 0;
 const index_js_1 = require("./data-store/index.js");
 Object.defineProperty(exports, "DataStore", { enumerable: true, get: function () { return index_js_1.DataStore; } });
 Object.defineProperty(exports, "DataStoreORM", { enumerable: true, get: function () { return index_js_1.DataStoreORM; } });
@@ -35,3 +35,7 @@ const issue_credential_handler_js_1 = require("./handlers/issue-credential-handl
 Object.defineProperty(exports, "IssueCredentialHandler", { enumerable: true, get: function () { return issue_credential_handler_js_1.IssueCredentialHandler; } });
 const present_proof_handler_js_1 = require("./handlers/present-proof-handler.js");
 Object.defineProperty(exports, "PresentProofHandler", { enumerable: true, get: function () { return present_proof_handler_js_1.PresentProofHandler; } });
+const index_js_2 = require("./data-store/migrations/index.js");
+Object.defineProperty(exports, "migrationsCustom", { enumerable: true, get: function () { return index_js_2.migrationsCustom; } });
+const index_js_3 = require("./data-store/entities/index.js");
+Object.defineProperty(exports, "entitiesCustom", { enumerable: true, get: function () { return index_js_3.entitiesCustom; } });

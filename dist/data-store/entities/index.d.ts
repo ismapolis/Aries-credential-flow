@@ -1,0 +1,3 @@
+declare let entitiesCustom: (typeof import("@veramo/data-store").Key | typeof import("@veramo/data-store").Identifier | typeof import("@veramo/data-store").Service | typeof import("@veramo/data-store").Claim | typeof import("@veramo/data-store").Credential | typeof import("@veramo/data-store").Presentation | typeof import("@veramo/data-store").Message | typeof import("@veramo/data-store").PrivateKey)[];
+export { entitiesCustom };
+//# sourceMappingURL=index.d.ts.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"createDatabase.d.ts","sourceRoot":"","sources":["../../../src/data-store/migrations/createDatabase.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,WAAW,EAAS,MAAM,SAAS,CAAC;;AAE7C,qBAAa,oBAAqB,SAAQ,yBAAa;IAC/C,EAAE,CAAC,WAAW,EAAE,WAAW,GAAG,OAAO,CAAC,IAAI,CAAC;CAsBlD"}
